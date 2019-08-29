@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import rocks.inspectit.ocelot.autocomplete.Autocompleter;
+import rocks.inspectit.ocelot.autocomplete.AutocompleterImpl;
 import rocks.inspectit.ocelot.rest.AbstractBaseController;
 
 import java.util.List;
@@ -20,7 +20,7 @@ import java.util.List;
 public class AutocompleteController extends AbstractBaseController {
 
     @Autowired
-    Autocompleter autocompleter;
+    AutocompleterImpl autocompleter;
 
 
     @ApiOperation(value = "String which should be autocompleted")
