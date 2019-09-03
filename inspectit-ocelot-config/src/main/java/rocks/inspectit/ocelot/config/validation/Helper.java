@@ -127,7 +127,7 @@ public class Helper {
      * @param type
      * @return True: the given type is a list of a terminal type. False: either the given type is not a list or not a list of terminal types
      */
-    private boolean isListOfTerminalTypes(Type type) {
+    public boolean isListOfTerminalTypes(Type type) {
         if (type instanceof ParameterizedType) {
             ParameterizedType genericType = (ParameterizedType) type;
             if (genericType.getRawType() == List.class) {
