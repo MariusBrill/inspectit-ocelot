@@ -1,12 +1,15 @@
 package rocks.inspectit.ocelot.config.validation;
 
 import org.springframework.beans.BeanUtils;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Component;
 import rocks.inspectit.ocelot.config.utils.CaseUtils;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.net.URL;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.*;
 
@@ -19,7 +22,7 @@ public class Helper {
      */
     private static final HashSet<Class<?>> TERMINAL_TYPES = new HashSet(Arrays.asList(Object.class, String.class, Integer.class, Long.class,
             Float.class, Double.class, Character.class, Void.class,
-            Boolean.class, Byte.class, Short.class, Duration.class));
+            Boolean.class, Byte.class, Short.class, Duration.class, Path.class, URL.class, FileSystemResource.class));
 
     /**
      * Checks if a given List of properties exists as path
@@ -31,7 +34,7 @@ public class Helper {
     //@VisibleForTesting
     public OrderEnum checkPropertyExists(List<String> propertyNames, Type type) {
         if (propertyNames.isEmpty()) {
-            if (isTerminalOrEnum(type)) {
+            if (isTerminal(type) || isListOfTerminalTypes(type)) {
                 return OrderEnum.EXISTS_PATH_END;
             } else {
                 return OrderEnum.EXISTS_NON_PATH_END;
@@ -61,7 +64,7 @@ public class Helper {
      */
     //@VisibleForTesting
     OrderEnum checkPropertyExistsInMap(List<String> propertyNames, Type mapValueType) {
-        if (isTerminalOrEnum(mapValueType)) {
+        if (isTerminal(mapValueType)) {
             return OrderEnum.EXISTS_PATH_END;
         } else {
             return checkPropertyExists(propertyNames.subList(1, propertyNames.size()), mapValueType);
@@ -77,7 +80,11 @@ public class Helper {
      */
     //@VisibleForTesting
     OrderEnum checkPropertyExistsInList(List<String> propertyNames, Type listValueType) {
-        return checkPropertyExists(propertyNames.subList(1, propertyNames.size()), listValueType);
+        if (isTerminal(listValueType)) {
+            return OrderEnum.EXISTS_PATH_END;
+        } else {
+            return checkPropertyExists(propertyNames.subList(1, propertyNames.size()), listValueType);
+        }
     }
 
     /**
@@ -94,10 +101,12 @@ public class Helper {
                         .filter(descriptor -> descriptor.getName().equals(propertyName))
                         .findFirst();
         if (foundProperty.isPresent()) {
-            if (foundProperty.get().getReadMethod() == null) {
-                return OrderEnum.EXISTS_PATH_END;
+            Type propertyType;
+            if (foundProperty.get().getReadMethod() != null) {
+                propertyType = foundProperty.get().getReadMethod().getGenericReturnType();
+            } else {
+                propertyType = foundProperty.get().getPropertyType();
             }
-            Type propertyType = foundProperty.get().getReadMethod().getGenericReturnType();
             return checkPropertyExists(propertyNames.subList(1, propertyNames.size()), propertyType);
         } else {
             return OrderEnum.EXISTS_NOT;
@@ -110,11 +119,31 @@ public class Helper {
      * @param type
      * @return True: the given type is a terminal or an enum False: the given type is neither a terminal type nor an enum
      */
-    public boolean isTerminalOrEnum(Type type) {
-        if (type instanceof ParameterizedType) {
-            return false;
+    public boolean isTerminal(Type type) {
+        if (TERMINAL_TYPES.contains(type)) {
+            return true;
+        } else if (type instanceof Class) {
+            return ((Class<?>) type).isEnum() || ((Class<?>) type).isPrimitive();
         }
-        return TERMINAL_TYPES.contains(type) || ((Class<?>) type).isEnum();
+        return false;
+    }
+
+    /**
+     * Checks if a given type is a list of terminal types
+     *
+     * @param type
+     * @return True: the given type is a list of a terminal type. False: either the given type is not a list or not a list of terminal types
+     */
+    private boolean isListOfTerminalTypes(Type type) {
+        if (type instanceof ParameterizedType) {
+            int typeIndex = 0;
+            ParameterizedType genericType = (ParameterizedType) type;
+            if (genericType.getRawType() == Map.class) {
+                typeIndex = 1;
+            }
+            return isTerminal(genericType.getActualTypeArguments()[typeIndex]);
+        }
+        return false;
     }
 
 
