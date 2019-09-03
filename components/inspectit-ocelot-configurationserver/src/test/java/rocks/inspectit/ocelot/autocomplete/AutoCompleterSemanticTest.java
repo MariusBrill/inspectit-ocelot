@@ -18,14 +18,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class AutoCompleterScopeTest {
-    private static final String PATH = "../../working_directory/files/testdata";
-
+public class AutoCompleterSemanticTest {
     @Mock
     private FileManager manager;
 
     @InjectMocks
-    private AutoCompleterScope autoCompleter;
+    private AutoCompleterSemantic autoCompleter;
 
     @Nested
     public class GetSuggestions {
@@ -34,7 +32,7 @@ public class AutoCompleterScopeTest {
         public void getScopeSuggestion() throws IOException {
             ArrayList<String> propertyPath = new ArrayList<>(Arrays.asList("inspectit", "instrumentation", "scopes"));
             ArrayList<String> output = new ArrayList<>(Arrays.asList("my_scope1", "another_scope1"));
-            AutoCompleterScope autoCompleter1 = Mockito.spy(autoCompleter);
+            AutoCompleterSemantic autoCompleter1 = Mockito.spy(autoCompleter);
             String mockInput = "inspectit:\n" +
                     "  instrumentation:\n" +
                     "    scopes: {my_scope1: null, another_scope1: null}\n" +
@@ -52,7 +50,7 @@ public class AutoCompleterScopeTest {
         public void getNonScopeSuggestion() throws IOException {
             ArrayList<String> propertyPath = new ArrayList<>(Arrays.asList("inspectit", "metrics"));
             ArrayList<String> output = new ArrayList<>();
-            AutoCompleterScope autoCompleter1 = Mockito.spy(autoCompleter);
+            AutoCompleterSemantic autoCompleter1 = Mockito.spy(autoCompleter);
             String mockInput = "inspectit:\n" +
                     "  instrumentation:\n" +
                     "    scopes: {my_scope1: null, another_scope1: null}\n" +
@@ -70,7 +68,7 @@ public class AutoCompleterScopeTest {
         public void noScopeDefined() throws IOException {
             ArrayList<String> propertyPath = new ArrayList<>(Arrays.asList("inspectit", "instrumentation", "scopes"));
             ArrayList<String> output = new ArrayList<>();
-            AutoCompleterScope autoCompleter1 = Mockito.spy(autoCompleter);
+            AutoCompleterSemantic autoCompleter1 = Mockito.spy(autoCompleter);
             String mockInput = "inspectit:\n" +
                     "  instrumentation:\n" +
                     "traits: [ONE_HAND, ONE_EYE]\n" +

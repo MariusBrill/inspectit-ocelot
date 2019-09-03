@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
-public class AutoCompleterScope implements AutoCompleter {
+public class AutoCompleterSemantic implements AutoCompleter {
 
     /**
      * Predicate to check if a given file path ends with .yml or .yaml
@@ -129,5 +129,4 @@ public class AutoCompleterScope implements AutoCompleter {
         }
         return scopes;
     }
-
 }

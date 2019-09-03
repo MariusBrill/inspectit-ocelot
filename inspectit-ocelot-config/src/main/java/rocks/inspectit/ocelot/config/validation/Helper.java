@@ -25,31 +25,30 @@ public class Helper {
             Boolean.class, Byte.class, Short.class, Duration.class, Path.class, URL.class, FileSystemResource.class));
 
     /**
-     * Checks if a given List of properties exists as path
+     * Returns the type which can be found at the end of the path. Returns null if the path does not exist
      *
      * @param propertyNames The list of properties one wants to check
      * @param type          The type in which the current top-level properties should be found
-     * @return True: when the property exsits <br> False: when it doesn't
+     * @return The type which can be found at the end of the path. Returns null if the path does not exist
      */
-    //@VisibleForTesting
-    public OrderEnum checkPropertyExists(List<String> propertyNames, Type type) {
+    public Type getPathEndType(List<String> propertyNames, Type type) {
         if (propertyNames.isEmpty()) {
             if (isTerminal(type) || isListOfTerminalTypes(type)) {
-                return OrderEnum.EXISTS_PATH_END;
+                return type;
             } else {
-                return OrderEnum.EXISTS_NON_PATH_END;
+                return type;
             }
         }
         if (type instanceof ParameterizedType) {
             ParameterizedType genericType = (ParameterizedType) type;
             if (genericType.getRawType() == Map.class) {
-                return checkPropertyExistsInMap(propertyNames, genericType.getActualTypeArguments()[1]);
+                return getTypeInMap(propertyNames, genericType.getActualTypeArguments()[1]);
             } else if (genericType.getRawType() == List.class) {
-                return checkPropertyExistsInList(propertyNames, genericType.getActualTypeArguments()[0]);
+                return getTypeInList(propertyNames, genericType.getActualTypeArguments()[0]);
             }
         }
         if (type instanceof Class) {
-            return checkPropertyExistsInBean(propertyNames, (Class<?>) type);
+            return getTypeInBean(propertyNames, (Class<?>) type);
         } else {
             throw new IllegalArgumentException("Unexpected type: " + type);
         }
@@ -62,12 +61,11 @@ public class Helper {
      * @param mapValueType  The type which is given as value type of a map
      * @return True: The type exists <br> False: the type does not exists
      */
-    //@VisibleForTesting
-    OrderEnum checkPropertyExistsInMap(List<String> propertyNames, Type mapValueType) {
+    Type getTypeInMap(List<String> propertyNames, Type mapValueType) {
         if (isTerminal(mapValueType)) {
-            return OrderEnum.EXISTS_PATH_END;
+            return mapValueType;
         } else {
-            return checkPropertyExists(propertyNames.subList(1, propertyNames.size()), mapValueType);
+            return getPathEndType(propertyNames.subList(1, propertyNames.size()), mapValueType);
         }
     }
 
@@ -78,13 +76,8 @@ public class Helper {
      * @param listValueType The type which is given as value type of a list
      * @return True: The type exists <br> False: the type does not exists
      */
-    //@VisibleForTesting
-    OrderEnum checkPropertyExistsInList(List<String> propertyNames, Type listValueType) {
-        if (isTerminal(listValueType)) {
-            return OrderEnum.EXISTS_PATH_END;
-        } else {
-            return checkPropertyExists(propertyNames.subList(1, propertyNames.size()), listValueType);
-        }
+    Type getTypeInList(List<String> propertyNames, Type listValueType) {
+        return getPathEndType(propertyNames.subList(1, propertyNames.size()), listValueType);
     }
 
     /**
@@ -94,7 +87,7 @@ public class Helper {
      * @param beanType      The bean through which should be searched
      * @return True: the property and all other properties exists <br> False: At least one of the properties does not exist
      */
-    private OrderEnum checkPropertyExistsInBean(List<String> propertyNames, Class<?> beanType) {
+    private Type getTypeInBean(List<String> propertyNames, Class<?> beanType) {
         String propertyName = CaseUtils.kebabCaseToCamelCase(propertyNames.get(0));
         Optional<PropertyDescriptor> foundProperty =
                 Arrays.stream(BeanUtils.getPropertyDescriptors(beanType))
@@ -107,9 +100,9 @@ public class Helper {
             } else {
                 propertyType = foundProperty.get().getPropertyType();
             }
-            return checkPropertyExists(propertyNames.subList(1, propertyNames.size()), propertyType);
+            return getPathEndType(propertyNames.subList(1, propertyNames.size()), propertyType);
         } else {
-            return OrderEnum.EXISTS_NOT;
+            return null;
         }
     }
 
@@ -136,12 +129,10 @@ public class Helper {
      */
     private boolean isListOfTerminalTypes(Type type) {
         if (type instanceof ParameterizedType) {
-            int typeIndex = 0;
             ParameterizedType genericType = (ParameterizedType) type;
-            if (genericType.getRawType() == Map.class) {
-                typeIndex = 1;
+            if (genericType.getRawType() == List.class) {
+                return isTerminal(genericType.getActualTypeArguments()[0]);
             }
-            return isTerminal(genericType.getActualTypeArguments()[typeIndex]);
         }
         return false;
     }
@@ -155,7 +146,6 @@ public class Helper {
      * @param propertyName A String containing the property path
      * @return a List containing containing the parts of the property path as String
      */
-    //@VisibleForTesting
     public List<String> parse(String propertyName) {
         ArrayList<String> result = new ArrayList<>();
         String remainder = propertyName;
