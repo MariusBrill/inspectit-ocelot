@@ -14,7 +14,7 @@ import java.time.Duration;
 import java.util.*;
 
 @Component
-public class Helper {
+public class PropertyPathHelper {
 
     /**
      * A HashSet of classes which are used as wildcards in the search for properties. If a found class matches one of these

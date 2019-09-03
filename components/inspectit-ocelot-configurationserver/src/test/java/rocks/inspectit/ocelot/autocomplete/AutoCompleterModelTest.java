@@ -10,7 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.BeanUtils;
 import rocks.inspectit.ocelot.config.model.InspectitConfig;
 import rocks.inspectit.ocelot.config.model.instrumentation.scope.InstrumentationScopeSettings;
-import rocks.inspectit.ocelot.config.validation.Helper;
+import rocks.inspectit.ocelot.config.validation.PropertyPathHelper;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Type;
@@ -30,7 +30,7 @@ public class AutoCompleterModelTest {
     AutoCompleterModel completer;
 
     @Mock
-    Helper helper;
+    PropertyPathHelper propertyPathHelper;
 
     @Nested
     public class CheckPropertyExists {
@@ -51,9 +51,9 @@ public class AutoCompleterModelTest {
                     .findFirst();
             Type typeOfMap = mapDescriptor.get().getPropertyType();
             AutoCompleterModel completer1 = Mockito.spy(completer);
-            when(helper.getPathEndType(any(), any())).thenReturn(typeOfMap);
-            when(helper.isTerminal(any())).thenReturn(false);
-            when(helper.isListOfTerminalTypes(any())).thenReturn(false);
+            when(propertyPathHelper.getPathEndType(any(), any())).thenReturn(typeOfMap);
+            when(propertyPathHelper.isTerminal(any())).thenReturn(false);
+            when(propertyPathHelper.isListOfTerminalTypes(any())).thenReturn(false);
 
 
             assertThat(completer1.getSuggestions(input)).isEqualTo(output);
@@ -71,7 +71,7 @@ public class AutoCompleterModelTest {
                     "type");
             Type t = InstrumentationScopeSettings.class;
             AutoCompleterModel completer1 = Mockito.spy(completer);
-            when(helper.getPathEndType(any(), any())).thenReturn(t);
+            when(propertyPathHelper.getPathEndType(any(), any())).thenReturn(t);
 
             assertThat(completer1.getSuggestions(input)).isEqualTo(output);
         }
@@ -92,7 +92,7 @@ public class AutoCompleterModelTest {
                     "tracing"));
             Type t = InspectitConfig.class;
             AutoCompleterModel completer1 = Mockito.spy(completer);
-            when(helper.getPathEndType(any(), any())).thenReturn(t);
+            when(propertyPathHelper.getPathEndType(any(), any())).thenReturn(t);
 
             assertThat(completer1.getSuggestions(input)).isEqualTo(output);
         }
@@ -102,8 +102,8 @@ public class AutoCompleterModelTest {
             List<String> input = Arrays.asList("inspectit", "instrumentation", "actions", "string_replace_all", "input", "regex");
             ArrayList<String> output = new ArrayList<>();
             Type t = String.class;
-            when(helper.getPathEndType(any(), any())).thenReturn(t);
-            when(helper.isTerminal(any())).thenReturn(true);
+            when(propertyPathHelper.getPathEndType(any(), any())).thenReturn(t);
+            when(propertyPathHelper.isTerminal(any())).thenReturn(true);
             AutoCompleterModel completer1 = Mockito.spy(completer);
 
             assertThat(completer1.getSuggestions(input)).isEqualTo(output);
@@ -115,7 +115,7 @@ public class AutoCompleterModelTest {
             ArrayList<String> output = new ArrayList<>();
             Type t = boolean.class;
             AutoCompleterModel completer1 = Mockito.spy(completer);
-            when(helper.getPathEndType(any(), any())).thenReturn(t);
+            when(propertyPathHelper.getPathEndType(any(), any())).thenReturn(t);
 
             assertThat(completer1.getSuggestions(input)).isEqualTo(output);
         }

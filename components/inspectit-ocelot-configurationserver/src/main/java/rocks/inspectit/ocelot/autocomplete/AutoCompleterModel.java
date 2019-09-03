@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import rocks.inspectit.ocelot.config.model.InspectitConfig;
 import rocks.inspectit.ocelot.config.utils.CaseUtils;
-import rocks.inspectit.ocelot.config.validation.Helper;
+import rocks.inspectit.ocelot.config.validation.PropertyPathHelper;
 
 import java.lang.reflect.Type;
 import java.time.Duration;
@@ -27,7 +27,7 @@ public class AutoCompleterModel implements AutoCompleter {
             Boolean.class, Byte.class, Short.class, Duration.class));
 
     @Autowired
-    private Helper help;
+    private PropertyPathHelper help;
 
     @Override
     public List<String> getSuggestions(List<String> camelCasePath) {

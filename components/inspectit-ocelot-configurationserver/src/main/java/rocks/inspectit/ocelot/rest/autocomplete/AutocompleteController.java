@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import rocks.inspectit.ocelot.autocomplete.AutoCompleter;
 import rocks.inspectit.ocelot.config.utils.CaseUtils;
-import rocks.inspectit.ocelot.config.validation.Helper;
+import rocks.inspectit.ocelot.config.validation.PropertyPathHelper;
 import rocks.inspectit.ocelot.rest.AbstractBaseController;
 
 import java.util.ArrayList;
@@ -27,7 +27,7 @@ public class AutocompleteController extends AbstractBaseController {
     List<AutoCompleter> completers;
 
     @Autowired
-    Helper help;
+    PropertyPathHelper help;
 
     @ApiOperation(value = "String which should be autocompleted")
     @ApiResponse(code = 200, message = "The options which you can enter into the string", examples =

@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.stereotype.Component;
 import rocks.inspectit.ocelot.config.model.InspectitConfig;
-import rocks.inspectit.ocelot.config.validation.Helper;
+import rocks.inspectit.ocelot.config.validation.PropertyPathHelper;
 
 import javax.annotation.PostConstruct;
 import java.lang.reflect.Type;
@@ -23,7 +23,7 @@ public class PropertyNamesValidator {
     private InspectitEnvironment env;
 
     @Autowired
-    private Helper help = new Helper();
+    private PropertyPathHelper help = new PropertyPathHelper();
 
     /**
      * A HashSet of classes which are used as wildcards in the search for properties. If a found class matches one of these
