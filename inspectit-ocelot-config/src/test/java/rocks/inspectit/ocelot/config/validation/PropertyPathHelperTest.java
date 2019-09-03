@@ -4,7 +4,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import rocks.inspectit.ocelot.config.model.InspectitConfig;
+import rocks.inspectit.ocelot.config.model.exporters.metrics.PrometheusExporterSettings;
+import rocks.inspectit.ocelot.config.model.instrumentation.scope.MatcherMode;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
@@ -74,50 +77,57 @@ public class PropertyPathHelperTest {
         @Test
         void termminalTest() {
             ArrayList<String> list = new ArrayList<>(Arrays.asList("config", "file-based", "path"));
+            Type output = String.class;
 
-            assertThat(propertyPathHelper.checkPropertyExists(list, InspectitConfig.class)).isEqualTo(OrderEnum.EXISTS_PATH_END);
+            assertThat(propertyPathHelper.getPathEndType(list, InspectitConfig.class)).isEqualTo(output);
         }
 
         @Test
         void nonTermminalTest() {
             ArrayList<String> list = new ArrayList<>(Arrays.asList("exporters", "metrics", "prometheus"));
+            Type output = PrometheusExporterSettings.class;
 
-            assertThat(propertyPathHelper.checkPropertyExists(list, InspectitConfig.class)).isEqualTo(OrderEnum.EXISTS_NON_PATH_END);
+            assertThat(propertyPathHelper.getPathEndType(list, InspectitConfig.class)).isEqualTo(output);
         }
 
         @Test
         void emptyString() {
             ArrayList<String> list = new ArrayList<>(Arrays.asList(""));
+            Type output = null;
 
-            assertThat(propertyPathHelper.checkPropertyExists(list, InspectitConfig.class)).isEqualTo(OrderEnum.EXISTS_NOT);
+            assertThat(propertyPathHelper.getPathEndType(list, InspectitConfig.class)).isEqualTo(output);
         }
 
         @Test
         void existingList() {
             ArrayList<String> list = new ArrayList<>(Arrays.asList("instrumentation", "scopes", "jdbc_statement_execute", "interfaces", "0", "matcher-mode"));
+            Type output = MatcherMode.class;
 
-            assertThat(propertyPathHelper.checkPropertyExists(list, InspectitConfig.class)).isEqualTo(OrderEnum.EXISTS_PATH_END);
+            assertThat(propertyPathHelper.getPathEndType(list, InspectitConfig.class)).isEqualTo(output);
         }
 
         @Test
         void existingMap() {
             ArrayList<String> list = new ArrayList<>(Arrays.asList("metrics", "definitions", "jvm/gc/concurrent/phase/time", "description"));
+            Type output = String.class;
 
-            assertThat(propertyPathHelper.checkPropertyExists(list, InspectitConfig.class)).isEqualTo(OrderEnum.EXISTS_PATH_END);
+            assertThat(propertyPathHelper.getPathEndType(list, InspectitConfig.class)).isEqualTo(output);
         }
 
         @Test
         void readMethodIsNull() {
             ArrayList<String> list = new ArrayList<>(Arrays.asList("instrumentation", "data", "method_duration", "is-tag"));
+            Type output = boolean.class;
 
-            assertThat(propertyPathHelper.checkPropertyExists(list, InspectitConfig.class)).isEqualTo(OrderEnum.EXISTS_PATH_END);
+            assertThat(propertyPathHelper.getPathEndType(list, InspectitConfig.class)).isEqualTo(output);
         }
 
         @Test
         void endsInWildcardType() {
             ArrayList<String> list = new ArrayList<>(Arrays.asList("instrumentation", "actions", "string_replace_all", "input", "regex"));
+            Type output = String.class;
 
-            assertThat(propertyPathHelper.checkPropertyExists(list, InspectitConfig.class)).isEqualTo(OrderEnum.EXISTS_PATH_END);
+            assertThat(propertyPathHelper.getPathEndType(list, InspectitConfig.class)).isEqualTo(output);
         }
     }
 
@@ -127,7 +137,7 @@ public class PropertyPathHelperTest {
         void nonTerminalMapTest() {
             ArrayList<String> list = new ArrayList<>(Arrays.asList("matcher-mode"));
 
-            assertThat(propertyPathHelper.checkPropertyExistsInMap(list, Map.class)).isEqualTo(OrderEnum.EXISTS_NON_PATH_END);
+            assertThat(propertyPathHelper.getPathEndType(list, Map.class)).isEqualTo(null);
 
         }
     }
@@ -137,8 +147,9 @@ public class PropertyPathHelperTest {
         @Test
         void nonTerminalListTest() {
             ArrayList<String> list = new ArrayList(Arrays.asList("instrumentation", "scopes", "jdbc_statement_execute", "interfaces", "0", "matcher-mode"));
+            Type output = MatcherMode.class;
 
-            assertThat(propertyPathHelper.checkPropertyExists(list, InspectitConfig.class)).isEqualTo(OrderEnum.EXISTS_PATH_END);
+            assertThat(propertyPathHelper.getPathEndType(list, InspectitConfig.class)).isEqualTo(output);
         }
     }
 }
