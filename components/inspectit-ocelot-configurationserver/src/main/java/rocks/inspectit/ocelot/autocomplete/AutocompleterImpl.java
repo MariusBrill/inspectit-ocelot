@@ -15,7 +15,7 @@ import java.time.Duration;
 import java.util.*;
 
 @Component
-public class AutocompleterImpl {
+public class AutocompleterImpl implements AutoCompleter {
 
     /**
      * A HashSet of classes which are used as wildcards in the search for properties. If a found class matches one of these
@@ -26,10 +26,15 @@ public class AutocompleterImpl {
             Boolean.class, Byte.class, Short.class, Duration.class));
 
     @Autowired
-    private Helper help = new Helper();
+    private Helper help;
 
-    @Autowired
-    private CaseUtils utils;
+    @Override
+    public List<String> getSuggestions(List<String> camelCasePath) {
+        if (help.checkPropertyExists(camelCasePath.subList(1, camelCasePath.size()), InspectitConfig.class) != OrderEnum.EXISTS_NOT) {
+            return collectProperties((ArrayList<String>) camelCasePath);
+        }
+        return new ArrayList<>();
+    }
 
     /**
      * Method to find properties in an existing path
@@ -51,7 +56,7 @@ public class AutocompleterImpl {
      * @param propertyName
      * @return True: the given path could exist <br> False: the given path does not exist
      */
-    boolean checkPropertyName(String propertyName) {
+    public boolean checkPropertyName(String propertyName) {
         ArrayList<String> list = ((ArrayList<String>) help.parse(propertyName));
         return propertyName != null
                 && propertyName.startsWith("inspectit.")
@@ -70,7 +75,7 @@ public class AutocompleterImpl {
         Type type = InspectitConfig.class;
         Optional<PropertyDescriptor> foundProperty = null;
         while (properties.size() >= 1) {
-            String propertyName = utils.kebabCaseToCamelCase(properties.get(0));
+            String propertyName = CaseUtils.kebabCaseToCamelCase(properties.get(0));
             type = getCurrentType(type, propertyName);
             if (type == null) {
                 return new ArrayList<>(); //returned null before the end of the path was reached
@@ -95,7 +100,7 @@ public class AutocompleterImpl {
      */
     List<String> getProperties(Class<?> beanClass) {
         ArrayList<String> propertyList = new ArrayList<>();
-        Arrays.stream(BeanUtils.getPropertyDescriptors(beanClass)).forEach(descriptor -> propertyList.add(utils.camelCaseToKebabCase(descriptor.getName())));
+        Arrays.stream(BeanUtils.getPropertyDescriptors(beanClass)).forEach(descriptor -> propertyList.add(CaseUtils.camelCaseToKebabCase(descriptor.getName())));
         return propertyList;
 
     }
@@ -129,5 +134,4 @@ public class AutocompleterImpl {
         }
         return null;
     }
-
 }

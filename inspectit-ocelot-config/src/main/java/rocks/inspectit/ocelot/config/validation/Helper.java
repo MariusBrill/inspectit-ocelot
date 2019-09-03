@@ -1,7 +1,6 @@
 package rocks.inspectit.ocelot.config.validation;
 
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import rocks.inspectit.ocelot.config.utils.CaseUtils;
 
@@ -13,9 +12,6 @@ import java.util.*;
 
 @Component
 public class Helper {
-
-    @Autowired
-    CaseUtils utils;
 
     /**
      * A HashSet of classes which are used as wildcards in the search for properties. If a found class matches one of these
@@ -63,7 +59,7 @@ public class Helper {
      * @param mapValueType  The type which is given as value type of a map
      * @return True: The type exists <br> False: the type does not exists
      */
-    // @VisibleForTesting
+    //@VisibleForTesting
     OrderEnum checkPropertyExistsInMap(List<String> propertyNames, Type mapValueType) {
         if (isTerminalOrEnum(mapValueType)) {
             return OrderEnum.EXISTS_PATH_END;
@@ -79,7 +75,7 @@ public class Helper {
      * @param listValueType The type which is given as value type of a list
      * @return True: The type exists <br> False: the type does not exists
      */
-    // @VisibleForTesting
+    //@VisibleForTesting
     OrderEnum checkPropertyExistsInList(List<String> propertyNames, Type listValueType) {
         return checkPropertyExists(propertyNames.subList(1, propertyNames.size()), listValueType);
     }
@@ -92,7 +88,7 @@ public class Helper {
      * @return True: the property and all other properties exists <br> False: At least one of the properties does not exist
      */
     private OrderEnum checkPropertyExistsInBean(List<String> propertyNames, Class<?> beanType) {
-        String propertyName = utils.kebabCaseToCamelCase(propertyNames.get(0));
+        String propertyName = CaseUtils.kebabCaseToCamelCase(propertyNames.get(0));
         Optional<PropertyDescriptor> foundProperty =
                 Arrays.stream(BeanUtils.getPropertyDescriptors(beanType))
                         .filter(descriptor -> descriptor.getName().equals(propertyName))

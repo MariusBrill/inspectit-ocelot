@@ -8,10 +8,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import rocks.inspectit.ocelot.autocomplete.AutocompleterImpl;
+import rocks.inspectit.ocelot.autocomplete.AutoCompleter;
+import rocks.inspectit.ocelot.config.utils.CaseUtils;
+import rocks.inspectit.ocelot.config.validation.Helper;
 import rocks.inspectit.ocelot.rest.AbstractBaseController;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * The rest controller providing the interface used by the frontend server for autocomplete function.
@@ -20,8 +24,10 @@ import java.util.List;
 public class AutocompleteController extends AbstractBaseController {
 
     @Autowired
-    AutocompleterImpl autocompleter;
+    List<AutoCompleter> completers;
 
+    @Autowired
+    Helper help;
 
     @ApiOperation(value = "String which should be autocompleted")
     @ApiResponse(code = 200, message = "The options which you can enter into the string", examples =
@@ -32,6 +38,14 @@ public class AutocompleteController extends AbstractBaseController {
             "    \"advanced\"]", mediaType = "text/plain")))
     @PostMapping("/autocomplete")
     public List<String> getPossibleProperties(@RequestBody String properties) {
-        return autocompleter.findValidPropertyNames(properties);
+        ArrayList<String> ret = new ArrayList<>();
+        for (AutoCompleter completer : completers) {
+            completer.getSuggestions(parseAndToCamelCase(properties)).stream().filter(ps -> !ret.contains(ps)).collect(Collectors.toList()).forEach(ps -> ret.add(ps));
+        }
+        return ret;
+    }
+
+    private List<String> parseAndToCamelCase(String properties) {
+        return help.parse(properties).stream().map(ps -> CaseUtils.kebabCaseToCamelCase(ps)).collect(Collectors.toList());
     }
 }

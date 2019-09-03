@@ -1,7 +1,6 @@
-package rocks.inspectit.ocelot.core.config.util;
+package rocks.inspectit.ocelot.config.utils;
 
 import org.junit.jupiter.api.Test;
-import rocks.inspectit.ocelot.config.utils.CaseUtils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

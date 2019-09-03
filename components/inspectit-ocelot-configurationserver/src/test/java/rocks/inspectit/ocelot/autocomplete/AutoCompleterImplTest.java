@@ -3,14 +3,17 @@ package rocks.inspectit.ocelot.autocomplete;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class AutocompleterImplTest {
 
+public class AutoCompleterImplTest {
+
+    @Autowired
     AutocompleterImpl completer;
 
     @BeforeEach
